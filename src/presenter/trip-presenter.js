@@ -4,15 +4,14 @@ import TripPointEditView from '../view/point-edit-view.js';
 import TripPointView from '../view/point-view.js';
 import { render } from '../render.js';
 
-const POINT_COUNT = 3;
-
 export default class TripPresenter {
   #container = null;
   #sortComponent = new TripSortView();
   #eventListComponent = new TripEventListView();
 
-  constructor({ container }) {
+  constructor({ container, tripModel }) {
     this.#container = container;
+    this.tripModel = tripModel;
   }
 
   init() {
@@ -31,12 +30,18 @@ export default class TripPresenter {
   }
 
   #renderPointEdit() {
-    render(new TripPointEditView(), this.#eventListComponent.getElement());
+    const mockPoint = this.tripModel.getPoints()[0];
+    render(new TripPointEditView(mockPoint, this.tripModel.getDestinations()), this.#eventListComponent.getElement());
   }
 
   #renderTripPoints() {
-    for (let i = 0; i < POINT_COUNT; i++) {
-      render(new TripPointView(), this.#eventListComponent.getElement());
-    }
+    this.tripModel.getPoints().forEach((point) => {
+      const destination = this.tripModel.getDestinationById(point.destinationId);
+      render(new TripPointView({
+        point,
+        pointDestination: destination,
+        pointOffers: point.offers
+      }), this.#eventListComponent.getElement());
+    });
   }
 }
