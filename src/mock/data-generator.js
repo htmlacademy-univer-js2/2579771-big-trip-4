@@ -23,38 +23,37 @@ const DESTINATIONS_DATA = [
   },
 ];
 
-const OFFERS_DATA = [
-  {
-    id: 1,
-    type: 'luggage',
-    title: 'Add luggage',
-    price: 30,
-  },
-  {
-    id: 2,
-    type: 'comfort',
-    title: 'Switch to comfort class',
-    price: 100,
-  },
-  {
-    id: 3,
-    type: 'meal',
-    title: 'Add meal',
-    price: 15,
-  },
-  {
-    id: 4,
-    type: 'seats',
-    title: 'Choose seats',
-    price: 5,
-  },
-  {
-    id: 5,
-    type: 'train',
-    title: 'Travel by train',
-    price: 40,
-  },
-];
+const OFFERS_DATA = {
+  taxi: [
+    { id: 1, title: 'Choose taxi service', price: 10 },
+    { id: 2, title: 'Order a larger taxi', price: 20 },
+  ],
+  bus: [
+    { id: 3, title: 'Add bus pass', price: 5 },
+  ],
+  train: [
+    { id: 4, title: 'Switch to comfort class', price: 100 },
+  ],
+  ship: [
+    { id: 5, title: 'Choose cabin', price: 50 },
+  ],
+  drive: [
+    { id: 6, title: 'Rent a car', price: 100 },
+  ],
+  flight: [
+    { id: 7, title: 'Add luggage', price: 30 },
+    { id: 8, title: 'Choose seats', price: 5 },
+    { id: 9, title: 'Add meal', price: 15 },
+    { id: 10, title: 'Switch to comfort class', price: 100 },
+  ],
+  checkin: [],
+  sightseeing: [
+    { id: 11, title: 'Book tickets', price: 40 },
+  ],
+  restaurant: [
+    { id: 12, title: 'Reserve table', price: 50 },
+  ],
+};
 
 const TRIP_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
@@ -76,9 +75,13 @@ function getRandomArrayItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function getRandomOffers() {
-  const count = Math.floor(Math.random() * OFFERS_DATA.length) + 1;
-  const shuffled = OFFERS_DATA.slice().sort(() => 0.5 - Math.random());
+function getRandomOffers(type) {
+  const offersByType = OFFERS_DATA[type] || [];
+  if (offersByType.length === 0) {
+    return [];
+  }
+  const count = Math.floor(Math.random() * offersByType.length) + 1;
+  const shuffled = offersByType.slice().sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count).map((offerData) => new Offer(offerData));
 }
 
@@ -104,7 +107,7 @@ export function generateDestination(id) {
 export function generateTripPoint(id, destinations) {
   const type = getRandomArrayItem(TRIP_TYPES);
   const destination = getRandomArrayItem(destinations);
-  const offers = getRandomOffers();
+  const offers = getRandomOffers(type);
   const price = Math.floor(Math.random() * 450) + 50;
   const now = new Date();
   const dateFrom = new Date(now.getTime() + Math.floor(Math.random() * 24) * 3600000);

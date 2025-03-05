@@ -1,5 +1,5 @@
 import { createElement } from '../render.js';
-import dayjs from 'dayjs';
+import { formatDateTime } from '../utils/date-utils.js';
 
 export default class TripPointEditView {
   constructor(tripPoint = null, destinations = []) {
@@ -18,11 +18,9 @@ export default class TripPointEditView {
     const destination = this.destinations.find((dest) => dest.id === this.tripPoint.destinationId);
     const destinationName = destination ? destination.name : '';
 
-    // Форматируем даты для отображения в форме
-    const formattedDateFrom = this.tripPoint.dateFrom ? dayjs(this.tripPoint.dateFrom).format('DD/MM/YY HH:mm') : '';
-    const formattedDateTo = this.tripPoint.dateTo ? dayjs(this.tripPoint.dateTo).format('DD/MM/YY HH:mm') : '';
+    const formattedDateFrom = this.tripPoint.dateFrom ? formatDateTime(this.tripPoint.dateFrom) : '';
+    const formattedDateTo = this.tripPoint.dateTo ? formatDateTime(this.tripPoint.dateTo) : '';
 
-    // Капитализация типа события для вывода
     const eventTypeDisplay = this.tripPoint.type.charAt(0).toUpperCase() + this.tripPoint.type.slice(1);
 
     return `<li class="trip-events__item">
@@ -91,10 +89,12 @@ export default class TripPointEditView {
   _createEventTypeOptions() {
     const types = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
     return types.map((type) => {
-      const isChecked = type === this.tripPoint.type ? 'checked' : '';
+      const isChecked = (type.toLowerCase() === this.tripPoint.type.toLowerCase()) ? 'checked' : '';
       return `<div class="event__type-item">
                 <input id="event-type-${type}" class="event__type-input visually-hidden" type="radio" name="event-type" value="${type}" ${isChecked}>
-                <label class="event__type-label event__type-label--${type}" for="event-type-${type}">${type.charAt(0).toUpperCase() + type.slice(1)}</label>
+                <label class="event__type-label event__type-label--${type}" for="event-type-${type}">
+                  ${type.charAt(0).toUpperCase() + type.slice(1)}
+                </label>
               </div>`;
     }).join('');
   }
@@ -104,18 +104,22 @@ export default class TripPointEditView {
   }
 
   _createOffersTemplate() {
-    if (!this.tripPoint.offers || !this.tripPoint.offers.length) {
+    if (!this.tripPoint.offers.length) {
       return '<p>No offers available</p>';
     }
     return this.tripPoint.offers
-      .map((offer) => `<div class="event__offer-selector">
-                  <input class="event__offer-checkbox visually-hidden" id="event-offer-${offer.type}" type="checkbox" name="event-offer-${offer.type}" checked>
-                  <label class="event__offer-label" for="event-offer-${offer.type}">
-                    <span class="event__offer-title">${offer.title}</span>
-                    &plus;&euro;&nbsp;
-                    <span class="event__offer-price">${offer.price}</span>
-                  </label>
-                </div>`)
+      .map((offer, index) => {
+        const checkedAttr = offer.isChecked ? 'checked' : '';
+        const uniqueId = `event-offer-${this.tripPoint.id}-${offer.type}-${index}`;
+        return `<div class="event__offer-selector">
+          <input class="event__offer-checkbox visually-hidden" id="${uniqueId}" type="checkbox" name="event-offer-${offer.type}" ${checkedAttr}>
+          <label class="event__offer-label" for="${uniqueId}">
+            <span class="event__offer-title">${offer.title}</span>
+            &plus;&euro;&nbsp;
+            <span class="event__offer-price">${offer.price}</span>
+          </label>
+        </div>`;
+      })
       .join('');
   }
 

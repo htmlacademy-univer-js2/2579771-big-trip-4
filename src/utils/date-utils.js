@@ -25,3 +25,9 @@ export function formatDateTimeShort(date) {
 export function formatDateMonthDay(date) {
   return dayjs(date).format('MMM DD');
 }
+
+export function formatDateTime(date) {
+  return dayjs(date).format('DD/MM/YY HH:mm');
+}
+
+
